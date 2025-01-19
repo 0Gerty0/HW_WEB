@@ -1,5 +1,7 @@
+
 package ru.netology;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -12,27 +14,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OrderFormTest {
 
-    @Test
-    void shouldSubmitFormWithValidData() throws InterruptedException {
-        // Настраиваем WebDriverManager для подбора драйвера
-        WebDriverManager.chromedriver().setup();
+    private static WebDriver driver;
 
-        // Конфигурация Chrome для headless-режима (обязательно для CI)
+    @BeforeAll
+    public static void setupAll() {
+        WebDriverManager.chromedriver().setup(); // Устанавливаем ChromeDriver
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless"); // Без интерфейса
-        options.addArguments("--disable-gpu"); // Отключение GPU
-        options.addArguments("--no-sandbox"); // Обход песочницы
-        options.addArguments("--disable-dev-shm-usage"); // Для небольших контейнеров
+        options.addArguments("--disable-gpu");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        driver = new ChromeDriver(options); // Инициализируем драйвер
+    }
 
-        // Запускаем браузер
-        WebDriver driver = new ChromeDriver(options);
-
+    @Test
+    void shouldSubmitFormWithValidData() throws InterruptedException {
         try {
-            // Открываем тестируемое приложение
-            driver.get("http://localhost:9999");
-
-            // Ждём, чтобы приложение загрузилось
-            Thread.sleep(5000);
+            driver.get("http://localhost:9999"); // Открываем приложение
+            Thread.sleep(5000); // Ждем, чтобы приложение загрузилось
 
             // Заполняем форму
             driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иван Иванов");
@@ -46,8 +45,7 @@ public class OrderFormTest {
 
             assertEquals("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.", text);
         } finally {
-            // Завершаем работу браузера
-            driver.quit();
+            driver.quit(); // Завершаем работу драйвера
         }
     }
 }
