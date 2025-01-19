@@ -31,8 +31,12 @@ jobs:
         run: sleep 10
       - name: Print SUT logs
         run: cat sut.log
+      - name: Save SUT logs
+        uses: actions/upload-artifact@v3
+        with:
+          name: sut-log
+          path: sut.log
       - name: Build with Gradle
         run: ./gradlew test --info
       - name: Kill Java processes
         run: pkill -f 'java'
-
