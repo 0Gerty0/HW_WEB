@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class OrderFormTest {
 
     @Test
-    void shouldSubmitFormWithValidData() {
+    void shouldSubmitFormWithValidData() throws InterruptedException {
         // Настраиваем WebDriverManager для подбора драйвера
         WebDriverManager.chromedriver().setup();
 
@@ -30,6 +30,9 @@ public class OrderFormTest {
         try {
             // Открываем тестируемое приложение
             driver.get("http://localhost:9999");
+
+            // Ждём, чтобы приложение загрузилось
+            Thread.sleep(5000);
 
             // Заполняем форму
             driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иван Иванов");
@@ -48,5 +51,3 @@ public class OrderFormTest {
         }
     }
 }
-
-
