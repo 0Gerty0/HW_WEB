@@ -25,17 +25,18 @@ jobs:
           sudo apt-get install -y google-chrome-stable
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      - name: Verify JAR file exists
+        run: |
+          if [ ! -f ./artifacts/app-order.jar ]; then
+            echo "JAR file not found!"
+            exit 1
+          fi
       - name: Start SUT
-        run: java -jar ./artifacts/app-card-delivery.jar > sut.log 2>&1 &
+        run: java -jar ./artifacts/app-order.jar > sut.log 2>&1 &
       - name: Wait for SUT
         run: sleep 10
       - name: Print SUT logs
         run: cat sut.log
-      - name: Save SUT logs
-        uses: actions/upload-artifact@v3
-        with:
-          name: sut-log
-          path: sut.log
       - name: Build with Gradle
         run: ./gradlew test --info
       - name: Kill Java processes
