@@ -1,10 +1,15 @@
 name: Java CI with Gradle
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -14,16 +19,20 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Start SUT
-        # Запускаем SUT,
-        # имя файла SUT будет отличаться в каждой задаче.
-        # & означает, что в фоновом режиме не блокируем терминал для запуска тестов,
-        # обязательно должен быть для запуска SUT в CI
-        run: java -jar ./artifacts/app-app-order.jar &
+        run: java -jar ./artifacts/app-card-delivery.jar > sut.log 2>&1 &
+      - name: Wait for SUT
+        run: sleep 10
+      - name: Print SUT logs
+        run: cat sut.log
       - name: Build with Gradle
-        # Запускаем автотесты
-        # Для проектов на базе Selenide необходимо добавить параметр для запуска браузера
-        # в headless режиме -Dselenide.headless=true, параметр --info должен остаться
         run: ./gradlew test --info
+      - name: Kill Java processes
+        run: pkill -f 'java'
+
