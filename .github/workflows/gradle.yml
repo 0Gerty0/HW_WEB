@@ -27,6 +27,8 @@ jobs:
         run: chmod +x gradlew
       - name: Start SUT
         run: java -jar ./artifacts/app-card-delivery.jar &
+      - name: Wait for SUT
+        run: sleep 10
       - name: Build with Gradle
         run: ./gradlew test --info
       - name: Kill Java processes
