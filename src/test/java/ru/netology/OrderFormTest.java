@@ -1,51 +1,50 @@
-
 package ru.netology;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
+import org.junit.jupiter.api.*;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.*;
+import org.openqa.selenium.support.ui.*;
 import io.github.bonigarcia.wdm.WebDriverManager;
+
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OrderFormTest {
 
-    private static WebDriver driver;
+    private WebDriver driver;
 
-    @BeforeAll
-    public static void setupAll() {
-        WebDriverManager.chromedriver().setup(); // Устанавливаем ChromeDriver
+    @BeforeEach
+    void setUp() {
+        WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); // Без интерфейса
-        options.addArguments("--disable-gpu");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-        driver = new ChromeDriver(options); // Инициализируем драйвер
+        options.addArguments("--headless", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
+        driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @Test
-    void shouldSubmitFormWithValidData() throws InterruptedException {
-        try {
-            driver.get("http://localhost:9999"); // Открываем приложение
-            Thread.sleep(5000); // Ждем, чтобы приложение загрузилось
+    void shouldSubmitFormWithValidData() {
+        driver.get("http://localhost:9999");
 
-            // Заполняем форму
-            driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иван Иванов");
-            driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79998887766");
-            driver.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-            driver.findElement(By.cssSelector("button.button")).click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-test-id=name] input")));
 
-            // Проверяем сообщение об успешной отправке
-            WebElement successMessage = driver.findElement(By.cssSelector("[data-test-id=order-success]"));
-            String text = successMessage.getText().trim(); // Убираем лишние пробелы
+        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иван Иванов");
+        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79998887766");
+        driver.findElement(By.cssSelector("[data-test-id=agreement]")).click();
+        driver.findElement(By.cssSelector("button.button")).click();
 
-            assertEquals("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.", text);
-        } finally {
-            driver.quit(); // Завершаем работу драйвера
-        }
+        WebElement successMessage = driver.findElement(By.cssSelector("[data-test-id=order-success]"));
+        String text = successMessage.getText().trim();
+
+        assertEquals("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.", text);
     }
 }
